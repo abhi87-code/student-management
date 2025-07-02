@@ -1,19 +1,29 @@
 import React, { useState } from 'react';
 
 const Login = ({ setCurrentPage }) => {
-  const [userId, setUserId] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-    if (!userId.trim() || !password) {
-      setError('Please enter both User ID and Password.');
-      return;
+    try {
+      const response = await fetch('http://localhost:8080/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('token', data.token);
+        setCurrentPage('home');
+      } else {
+        setError('Invalid username or password');
+      }
+    } catch (err) {
+      setError('Login failed. Please try again.');
     }
-    // TODO: Replace with backend authentication
-    setCurrentPage('home');
   };
 
   return (
@@ -21,13 +31,13 @@ const Login = ({ setCurrentPage }) => {
       <form className="auth-card" onSubmit={handleLogin}>
         <h2 className="auth-title">Sign In</h2>
         <div className="auth-field">
-          <label htmlFor="userid">User ID</label>
+          <label htmlFor="username">Username</label>
           <input
-            id="userid"
+            id="username"
             type="text"
-            value={userId}
-            onChange={e => setUserId(e.target.value)}
-            placeholder="Enter your user ID"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+            placeholder="Enter your username"
             autoComplete="username"
           />
         </div>

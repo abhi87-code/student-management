@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../App.css'
+import '../App.css';
 
 const View = ({ setCurrentPage }) => {
   const [students, setStudents] = useState([]);
@@ -8,36 +8,38 @@ const View = ({ setCurrentPage }) => {
 
   useEffect(() => {
     const fetchStudents = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        const response = await fetch('http://localhost:8080/students');
-
-        const raw = await response.text(); // get plain text (not JSON yet)
-
-        console.log("RAW RESPONSE:", raw); // check this in DevTools console
-
+        const token = localStorage.getItem('token');
+        const response = await fetch('http://localhost:8080/students', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        const raw = await response.text();
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}, message: ${raw}`);
         }
-
-        const data = JSON.parse(raw); // manually parse JSON now
+        const data = JSON.parse(raw);
+        // Debug: Check what keys are present
+        // console.log("Fetched students:", data);
         setStudents(data);
         setLoading(false);
       } catch (err) {
-        console.error("Failed to fetch students:", err);
-        setError(err.message || "Failed to load students. Please try again later.");
+        setError("Failed to load students. Please login again or try later.");
         setLoading(false);
       }
     };
-
     fetchStudents();
   }, []);
-  // Empty dependency array means this effect runs once after the initial render
 
   if (loading) {
     return (
       <div className="view-container">
         <h2 className="view-title">Loading Students...</h2>
-        <div className="loading-spinner"></div> {/* Simple loading spinner */}
+        <div className="loading-spinner"></div>
       </div>
     );
   }
@@ -54,10 +56,14 @@ const View = ({ setCurrentPage }) => {
   }
 
   if (students.length === 0) {
+    console.log("Fetched students:", students);
+
     return (
       <div className="view-container">
         <h2 className="view-title">No Students Found</h2>
-        <p className="no-students-message">It looks like there are no students registered yet.</p>
+        <p className="no-students-message">
+          It looks like there are no students registered yet.
+        </p>
         <button onClick={() => setCurrentPage('home')} className="back-button">
           Go Back to Home
         </button>
@@ -68,7 +74,6 @@ const View = ({ setCurrentPage }) => {
   return (
     <div className="view-container">
       <h2 className="view-title">All Registered Students</h2>
-
       <div className="students-table-container">
         <table className="students-table">
           <thead>
@@ -80,9 +85,9 @@ const View = ({ setCurrentPage }) => {
             </tr>
           </thead>
           <tbody>
-            {students.map((student) => (
-              <tr key={student.roll_number}>
-                <td>{student.roll_number}</td>
+            {students.map(student => (
+              <tr key={student.roll_Number}>
+                <td>{student.roll_Number}</td>
                 <td>{student.name}</td>
                 <td>{student.percentage}</td>
                 <td>{student.branch}</td>
@@ -91,9 +96,7 @@ const View = ({ setCurrentPage }) => {
           </tbody>
         </table>
       </div>
-
       <p className="total-students">Total Students: {students.length}</p>
-      {/* Moved the button here */}
       <button onClick={() => setCurrentPage('home')} className="back-button">
         Go Back to Home
       </button>

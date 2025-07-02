@@ -6,33 +6,30 @@ const SearchResult = ({ searchQuery, setCurrentPage }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
- useEffect(() => {
-  if (searchQuery) {
-    setLoading(true);
-    setError('');
+  useEffect(() => {
+    if (searchQuery) {
+      setLoading(true);
+      setError('');
 
-    console.log('Sending search request for:', searchQuery); // 🔍 Log to debug
-
-    axios
-      .get(`http://localhost:8080/student/search`, {
-params: { query: encodeURIComponent(searchQuery) },
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-      .then((response) => {
-        console.log('Search results:', response.data); // 🔍 Log response
-        setResults(response.data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error('Search error:', error); // 🔍 Log full error
-        setError('Something went wrong while fetching search results.');
-        setLoading(false);
-      });
-  }
-}, [searchQuery]);
-
+      const token = localStorage.getItem('token');
+      axios
+        .get('http://localhost:8080/student/search', {
+          params: { query: searchQuery },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        .then((response) => {
+          setResults(response.data);
+          setLoading(false);
+        })
+        .catch((error) => {
+          setError('Something went wrong while fetching search results.');
+          setLoading(false);
+        });
+    }
+  }, [searchQuery]);
 
   return (
     <div className="view-container">
@@ -49,17 +46,17 @@ params: { query: encodeURIComponent(searchQuery) },
           <table className="students-table">
             <thead>
               <tr>
+                <th>Roll Number</th>
                 <th>Name</th>
-                <th>Roll No</th>
                 <th>Branch</th>
                 <th>Percentage</th>
               </tr>
             </thead>
             <tbody>
               {results.map((student) => (
-                <tr key={student.roll_number}>
+                <tr key={student.roll_Number}>
+                  <td>{student.roll_Number}</td>
                   <td>{student.name}</td>
-                  <td>{student.roll_number}</td>
                   <td>{student.branch}</td>
                   <td>{student.percentage}</td>
                 </tr>

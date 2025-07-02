@@ -100,3 +100,4 @@ const Add = ({ setCurrentPage }) => {
 };
 
 export default Add;
+  

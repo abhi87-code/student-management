@@ -1,20 +1,19 @@
-// src/pages/Register.js
 import React, { useState } from 'react';
 
 const Register = ({ setCurrentPage }) => {
-  const [userId, setUserId] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
 
-    if (!userId.trim() || !password || !confirmPassword || !name.trim()) {
+    if (!name.trim() || !email.trim() || !password || !confirmPassword) {
       setError('All fields are required.');
       return;
     }
@@ -22,11 +21,26 @@ const Register = ({ setCurrentPage }) => {
       setError('Passwords do not match.');
       return;
     }
-    // TODO: Replace with backend registration logic
-    setSuccess('Registration successful! Please login.');
-    setTimeout(() => {
-      setCurrentPage('login');
-    }, 1500);
+    try {
+      const response = await fetch('http://localhost:8080/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: name, // If your backend expects 'username', use name as username
+          email: email,
+          password: password
+        }),
+      });
+      if (response.ok) {
+        setSuccess('Registration successful! Please login.');
+        setTimeout(() => setCurrentPage('login'), 1500);
+      } else {
+        const errMsg = await response.text();
+        setError(errMsg);
+      }
+    } catch (err) {
+      setError('Registration failed. Please try again.');
+    }
   };
 
   return (
@@ -45,14 +59,14 @@ const Register = ({ setCurrentPage }) => {
           />
         </div>
         <div className="auth-field">
-          <label htmlFor="userid">User ID</label>
+          <label htmlFor="email">Email</label>
           <input
-            id="userid"
-            type="text"
-            value={userId}
-            onChange={e => setUserId(e.target.value)}
-            placeholder="Choose a user ID"
-            autoComplete="username"
+            id="email"
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="Enter your email"
+            autoComplete="email"
           />
         </div>
         <div className="auth-field">

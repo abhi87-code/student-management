@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaHome, FaEye, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEye, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 
 const Navbar = ({ setCurrentPage, setSearchQuery }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -12,10 +12,21 @@ const Navbar = ({ setCurrentPage, setSearchQuery }) => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setCurrentPage('login');
+  };
+
   return (
     <div className="navbar">
       <div className="nav-left">
-        <div className="project-title">Student Management</div>
+        <button
+          className="project-title"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+          onClick={() => setCurrentPage('home')}
+        >
+          Student Management
+        </button>
       </div>
 
       <div className="nav-search">
@@ -32,9 +43,6 @@ const Navbar = ({ setCurrentPage, setSearchQuery }) => {
       </div>
 
       <div className="nav-right">
-        <button className="nav-button" onClick={() => setCurrentPage('home')}>
-          <FaHome className="icon" /> Home
-        </button>
         <button className="nav-button" onClick={() => setCurrentPage('view')}>
           <FaEye className="icon" /> View
         </button>
@@ -47,6 +55,10 @@ const Navbar = ({ setCurrentPage, setSearchQuery }) => {
         <button className="nav-button" onClick={() => setCurrentPage('delete')}>
           <FaTrash className="icon" /> Delete
         </button>
+        <button className="nav-button" onClick={() => setCurrentPage('logout')}>
+          Logout
+        </button>
+
       </div>
     </div>
   );
