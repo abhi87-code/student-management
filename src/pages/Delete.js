@@ -18,7 +18,13 @@ const Delete = ({ setCurrentPage }) => {
     setMessage('');
 
     try {
-      const response = await fetch(`/student/${studentId}`);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/student/${studentId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       if (response.ok) {
         const data = await response.json();
         setStudentData(data);
@@ -29,7 +35,6 @@ const Delete = ({ setCurrentPage }) => {
       }
     } catch (err) {
       setMessage("Error occurred while fetching student.");
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -40,7 +45,14 @@ const Delete = ({ setCurrentPage }) => {
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch(`/student/${studentId}`, { method: 'DELETE' });
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/student/${studentId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       if (response.ok) {
         setMessage(`Student with ID ${studentId} deleted successfully.`);
         setStudentData(null);
@@ -58,7 +70,14 @@ const Delete = ({ setCurrentPage }) => {
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch('/students', { method: 'DELETE' });
+      const token = localStorage.getItem('token');
+      const response = await fetch('/students', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       if (response.ok) {
         setMessage("All students deleted successfully.");
         setStudentData(null);
@@ -123,7 +142,7 @@ const Delete = ({ setCurrentPage }) => {
           {studentData && (
             <div style={{ marginBottom: '1rem' }}>
               <p><strong>Name:</strong> {studentData.name}</p>
-              <p><strong>Roll Number:</strong> {studentData.rollNumber}</p>
+              <p><strong>Roll Number:</strong> {studentData.roll_Number}</p>
               <p><strong>Branch:</strong> {studentData.branch}</p>
               <p><strong>Percentage:</strong> {studentData.percentage}</p>
 

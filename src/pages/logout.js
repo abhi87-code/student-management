@@ -1,14 +1,12 @@
 import { useEffect } from "react";
 
-const Logout = ({ setCurrentPage }) => {
+const Logout = ({ setCurrentPage, setRole }) => {
   useEffect(() => {
-    // Remove JWT token from localStorage
     localStorage.removeItem("token");
-    // Optionally clear other user data here
-
-    // Redirect to login page
+    localStorage.removeItem("role");
+    setRole('USER');
     setCurrentPage("login");
-  }, [setCurrentPage]);
+  }, [setCurrentPage, setRole]);
 
   return (
     <div className="view-container">

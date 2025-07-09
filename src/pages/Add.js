@@ -7,8 +7,6 @@ const Add = ({ setCurrentPage }) => {
     percentage: '',
     contactNumber: ''
   });
-
-
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
@@ -23,10 +21,12 @@ const Add = ({ setCurrentPage }) => {
     setError('');
 
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch('/student/add', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(formData)
       });
@@ -44,7 +44,6 @@ const Add = ({ setCurrentPage }) => {
         contactNumber: ''
       });
     } catch (err) {
-      console.error('Add student failed:', err);
       setError(err.message || 'Something went wrong.');
     }
   };
@@ -78,13 +77,13 @@ const Add = ({ setCurrentPage }) => {
           onChange={handleChange}
           required
         />
-       <input
-  type="text"
-  name="contactNumber"
-  value={formData.contactNumber}
-  onChange={handleChange}
-  placeholder="Enter Contact Number"
-/>
+        <input
+          type="text"
+          name="contactNumber"
+          value={formData.contactNumber}
+          onChange={handleChange}
+          placeholder="Enter Contact Number"
+        />
 
         <button type="submit" className="back-button">Add Student</button>
       </form>
@@ -100,4 +99,3 @@ const Add = ({ setCurrentPage }) => {
 };
 
 export default Add;
-  

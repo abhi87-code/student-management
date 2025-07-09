@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const Login = ({ setCurrentPage }) => {
+const Login = ({ setCurrentPage, setRole }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -17,6 +17,8 @@ const Login = ({ setCurrentPage }) => {
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem('token', data.token);
+        localStorage.setItem('role', data.role || 'USER');
+        setRole(data.role || 'USER');
         setCurrentPage('home');
       } else {
         setError('Invalid username or password');

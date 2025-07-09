@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../App.css';
 
-const View = ({ setCurrentPage }) => {
+const View = ({ setCurrentPage, role }) => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -23,8 +23,6 @@ const View = ({ setCurrentPage }) => {
           throw new Error(`HTTP error! status: ${response.status}, message: ${raw}`);
         }
         const data = JSON.parse(raw);
-        // Debug: Check what keys are present
-        // console.log("Fetched students:", data);
         setStudents(data);
         setLoading(false);
       } catch (err) {
@@ -56,8 +54,6 @@ const View = ({ setCurrentPage }) => {
   }
 
   if (students.length === 0) {
-    console.log("Fetched students:", students);
-
     return (
       <div className="view-container">
         <h2 className="view-title">No Students Found</h2>
@@ -74,6 +70,9 @@ const View = ({ setCurrentPage }) => {
   return (
     <div className="view-container">
       <h2 className="view-title">All Registered Students</h2>
+      {role === 'USER' && (
+        <p className="info-msg">You have view-only access. Contact admin for more permissions.</p>
+      )}
       <div className="students-table-container">
         <table className="students-table">
           <thead>

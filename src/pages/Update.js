@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const Update = ({ setCurrentPage }) => {
+const Update = ({ setCurrentPage, role }) => {
   const [studentId, setStudentId] = useState('');
   const [studentData, setStudentData] = useState(null);
   const [error, setError] = useState('');
@@ -8,14 +8,21 @@ const Update = ({ setCurrentPage }) => {
   const [updatedData, setUpdatedData] = useState({
     name: '',
     branch: '',
-    percentage: ''
+    percentage: '',
+    role: 'USER'
   });
 
   const fetchStudent = async () => {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch(`/student/${studentId}`);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/student/${studentId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       if (!response.ok) {
         throw new Error('Student not found');
       }
@@ -24,7 +31,8 @@ const Update = ({ setCurrentPage }) => {
       setUpdatedData({
         name: data.name,
         branch: data.branch,
-        percentage: data.percentage
+        percentage: data.percentage,
+        role: data.role || 'USER', // You need to fetch this from backend!
       });
     } catch (err) {
       setError(err.message);
@@ -35,16 +43,38 @@ const Update = ({ setCurrentPage }) => {
 
   const handleUpdate = async () => {
     try {
+      const token = localStorage.getItem('token');
+      // 1. Update student info
       const response = await fetch(`/student/${studentId}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(updatedData)
+        body: JSON.stringify({
+          name: updatedData.name,
+          branch: updatedData.branch,
+          percentage: updatedData.percentage
+        })
       });
 
       if (!response.ok) {
         throw new Error('Failed to update student');
+      }
+
+      // 2. If admin and role changed, update role
+      if (role === 'ADMIN' && studentData.role !== updatedData.role && studentData.username) {
+        const roleResponse = await fetch(`/user/${studentData.username}/role`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ role: updatedData.role })
+        });
+        if (!roleResponse.ok) {
+          throw new Error('Failed to update user role');
+        }
       }
 
       alert('Student updated successfully!');
@@ -57,8 +87,6 @@ const Update = ({ setCurrentPage }) => {
   return (
     <div className="view-container">
       <h2 className="view-title">Update Student</h2>
-
-      {/* ID Input Section */}
       <div>
         <input
           type="text"
@@ -71,12 +99,8 @@ const Update = ({ setCurrentPage }) => {
           Fetch Student
         </button>
       </div>
-
-      {/* Loading/Error Messages */}
       {loading && <p>Loading...</p>}
       {error && <p className="error-message">{error}</p>}
-
-      {/* Form Section */}
       {studentData && (
         <div style={{ marginTop: '2rem' }}>
           <label>
@@ -89,7 +113,6 @@ const Update = ({ setCurrentPage }) => {
             />
           </label>
           <br /><br />
-
           <label>
             Branch:
             <input
@@ -100,7 +123,6 @@ const Update = ({ setCurrentPage }) => {
             />
           </label>
           <br /><br />
-
           <label>
             Percentage:
             <input
@@ -111,14 +133,28 @@ const Update = ({ setCurrentPage }) => {
             />
           </label>
           <br /><br />
-
+          {/* Only show role dropdown if logged-in user is ADMIN */}
+          {role === 'ADMIN' && (
+            <>
+              <label>
+                Role:
+                <select
+                  value={updatedData.role}
+                  onChange={(e) => setUpdatedData({ ...updatedData, role: e.target.value })}
+                  style={{ marginLeft: '1rem', padding: '0.4rem' }}
+                >
+                  <option value="USER">USER</option>
+                  <option value="ADMIN">ADMIN</option>
+                </select>
+              </label>
+              <br /><br />
+            </>
+          )}
           <button onClick={handleUpdate} className="back-button">
             Submit Update
           </button>
         </div>
       )}
-
-      {/* Back to Home */}
       <button onClick={() => setCurrentPage('home')} className="back-button" style={{ marginTop: '2rem' }}>
         Go Back to Home
       </button>
